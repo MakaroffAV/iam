@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+
+  hp-database:
+    image:
+      "mysql:latest"
+    ports:
+      - "3306:3306"
+    networks:
+      - hp-network
+    environment:
+      MYSQL_USER:     makarov
+      MYSQL_PASSWORD: makarov
+      MYSQL_DATABASE: hp_service
+      MYSQL_ROOT_PASSWORD: makarov
+    container_name:
+      hp-database
+
+networks:
+  hp-network:
+    driver: bridge

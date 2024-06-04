@@ -67,10 +67,12 @@
     <body>
         <div class="container">
             <h1>Войти</h1>
-            <form action="#">
+            <form action="/back/signin" method="POST">
                 <input
                     required
                     type="email"
+                    name="email"
+                    autocomplete="off"
                     placeholder="Эл. почта ..."
                 />
                 <button type="submit">
