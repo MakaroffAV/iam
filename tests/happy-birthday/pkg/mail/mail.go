@@ -5,16 +5,17 @@ package mail
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
 import (
+	"os"
+
 	"gopkg.in/gomail.v2"
 )
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
 var (
-	mailPort = 587
-	mailHost = "smtp.yandex.ru"
-	mailPass = "ugqwzrmxxwwyiboa"
-	mailUser = "hp.mail.bot@yandex.ru"
+	mailHost = os.Getenv("EM_HOST")
+	mailPass = os.Getenv("EM_PASS")
+	mailUser = os.Getenv("EM_USER")
 )
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
@@ -37,7 +38,7 @@ func Send(recipient string, theme string, mbody string) error {
 	// create connection with
 	// smtp  server and  send
 	// the email to recipient
-	return gomail.NewDialer(mailHost, mailPort, mailUser, mailPass).DialAndSend(m)
+	return gomail.NewDialer(mailHost, 587, mailUser, mailPass).DialAndSend(m)
 
 }
 

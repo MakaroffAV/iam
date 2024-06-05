@@ -85,4 +85,22 @@ func (u UserSession) Check(dbConn *sql.DB) (bool, error) {
 
 }
 
+// ------------------------------------------------------------------------ //
+
+func (u UserSession) Close(dbConn *sql.DB, sessionToken string) error {
+
+	var s = `
+	UPDATE
+		user_session
+	SET
+		user_session.status = 0
+	WHERE
+		user_session.token  = ?
+	`
+
+	_, eErr := dbConn.Exec(s, sessionToken)
+	return eErr
+
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //

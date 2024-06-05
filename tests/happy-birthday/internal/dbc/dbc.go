@@ -7,6 +7,7 @@ package dbc
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -14,10 +15,10 @@ import (
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
 var (
-	dbUser = "makarov"
-	dbPass = "makarov"
-	dbName = "list"
-	dbHost = "localhost:3306"
+	dbUser = os.Getenv("DB_USER")
+	dbPass = os.Getenv("DB_PASS")
+	dbName = os.Getenv("DB_NAME")
+	dbHost = os.Getenv("DB_ADDR")
 )
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //

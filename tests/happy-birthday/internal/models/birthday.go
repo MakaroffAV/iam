@@ -21,6 +21,51 @@ type Birthday struct {
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
+func (b Birthday) UpdateSubscription(dbConn *sql.DB) error {
+
+	var s = `
+	UPDATE
+		birthday
+	SET
+		subscribed = ?
+	WHERE
+		id = ?
+	`
+
+	_, eErr := dbConn.Exec(s, b.Subscribed, b.Id)
+	return eErr
+
+}
+
+// ------------------------------------------------------------------------ //
+
+func (b Birthday) Update(dbConn *sql.DB, sessionToken string) error {
+
+	var s = `
+	UPDATE
+		birthday
+	SET
+		name = ?,
+		bday = ?,
+		notify_before = ?
+	WHERE
+		id = ?
+		AND
+		created_by = (
+			SELECT
+				user_id
+			FROM
+				user_session
+			WHERE
+				token   =  ?
+		)
+	`
+
+	_, eErr := dbConn.Exec(s, b.Name, b.BDay, b.NotifyBefore, b.Id, sessionToken)
+	return eErr
+
+}
+
 // Create  is  function   to
 // create new 'Birthday' man
 func (b Birthday) Create(dbConn *sql.DB, sessionToken string) error {
@@ -54,6 +99,47 @@ func (b Birthday) Create(dbConn *sql.DB, sessionToken string) error {
 	// create new 'Birthday' man
 	_, eErr := dbConn.Exec(s, b.Name, b.BDay, sessionToken, b.NotifyBefore)
 	return eErr
+
+}
+
+// ------------------------------------------------------------------------ //
+
+func (b Birthday) GetById(dbConn *sql.DB, sessionToken string) (*Birthday, error) {
+
+	var r Birthday
+
+	var s = `
+	SELECT
+		id,
+		name,
+		bday,
+		notify_before
+	FROM
+		birthday
+	WHERE
+		birthday.id = ?
+		AND
+		birthday.created_by = (
+			SELECT
+				user_id
+			FROM
+				user_session
+			WHERE
+				token   =  ?
+		)
+	`
+
+	qErr := dbConn.QueryRow(s, b.Id, sessionToken).Scan(
+		&r.Id,
+		&r.Name,
+		&r.BDay,
+		&r.NotifyBefore,
+	)
+	if qErr != nil {
+		return nil, qErr
+	}
+
+	return &r, nil
 
 }
 

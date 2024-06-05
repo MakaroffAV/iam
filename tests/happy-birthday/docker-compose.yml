@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - hp_nw
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      DB_USER: makarov
+      DB_ADDR: hp_bot_db:3306
+      DB_PASS: makarov
+      DB_NAME: list
+      EM_HOST: smtp.yandex.ru
+      EM_PASS: ugqwzrmxxwwyiboa
+      EM_USER: hp.mail.bot@yandex.ru
+    container_name:
+      hp_bot_app
+  
+  database:
+    image:
+      "mysql:latest"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+    networks:
+      - hp_nw
+    healthcheck:
+      test:     ["CMD", "curl", "-f", "http://hp_bot_db:3306"]
+      interval: 5s
+      timeout:  2s
+      retries:  5
+    environment:
+      MYSQL_USER:     makarov
+      MYSQL_PASSWORD: makarov
+      MYSQL_DATABASE: list
+      MYSQL_ROOT_PASSWORD: makarov
+    container_name:
+      hp_bot_db
+
+networks:
+  hp_nw:
+    driver: bridge
