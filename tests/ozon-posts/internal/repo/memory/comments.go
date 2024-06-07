@@ -12,7 +12,7 @@ type CommentRepository struct {
 	commentChildren map[string][]*models.Comment
 }
 
-func (r *CommentRepository) comment(id string) (*models.Comment, error) {
+func (r *CommentRepository) Comment(id string) (*models.Comment, error) {
 
 	c, cExists := r.comments[id]
 	if cExists {

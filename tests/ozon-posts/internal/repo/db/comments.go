@@ -11,6 +11,43 @@ type CommentDbRepository struct {
 	mu sync.RWMutex
 }
 
+func (r *CommentDbRepository) Comment(id string) (*models.Comment, error) {
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	var c = &models.Comment{}
+
+	if sErr := r.db.QueryRow(
+		`
+		SELECT
+			id,
+			post_id,
+			parent_id,
+			author,
+			content,
+			created_at
+		FROM
+			comment
+		WHERE
+			id = $1
+		`,
+		id,
+	).Scan(
+		&c.ID,
+		&c.PostID,
+		&c.ParentID,
+		&c.Author,
+		&c.Content,
+		&c.CreatedAt,
+	); sErr != nil {
+		return nil, sErr
+	}
+
+	return c, nil
+
+}
+
 func (r *CommentDbRepository) CreateComment(comment *models.Comment) error {
 
 	r.mu.Lock()

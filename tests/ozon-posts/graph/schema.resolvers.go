@@ -16,17 +16,43 @@ func (r *commentResolver) Children(ctx context.Context, obj *models.Comment) ([]
 
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context, title string, content string, author string, commentsAllowed bool) (*models.Post, error) {
-	return r.PostService.CreatePost(title, content, author, commentsAllowed)
+	return r.PostService.CreatePost(
+		title,
+		content,
+		author,
+		commentsAllowed,
+	)
 }
 
 // CreateComment is the resolver for the createComment field.
 func (r *mutationResolver) CreateComment(ctx context.Context, postID string, parentID *string, author string, content string) (*models.Comment, error) {
-	return r.CommentService.CreateComment(postID, parentID, author, content, r.PostService)
+	c, cErr := r.CommentService.CreateComment(
+		postID,
+		parentID,
+		author,
+		content,
+		r.PostService,
+	)
+	if cErr != nil {
+		return c, cErr
+	}
+
+	if ch, ok := r.Subscribers[postID]; ok {
+		go func() {
+			ch <- c
+		}()
+	}
+
+	return c, nil
 }
 
 // Comments is the resolver for the comments field.
 func (r *postResolver) Comments(ctx context.Context, obj *models.Post) ([]*models.Comment, error) {
-	return r.CommentService.Comments(obj.ID, -1, -1)
+	return r.CommentService.Comments(
+		obj.ID,
+		-1,
+		-1,
+	)
 }
 
 // Posts is the resolver for the posts field.
@@ -41,7 +67,26 @@ func (r *queryResolver) Post(ctx context.Context, id string) (*models.Post, erro
 
 // Comments is the resolver for the comments field.
 func (r *queryResolver) Comments(ctx context.Context, postID string, limit int, offset int) ([]*models.Comment, error) {
-	return r.CommentService.Comments(postID, limit, offset)
+	return r.CommentService.Comments(
+		postID,
+		limit,
+		offset,
+	)
+}
+
+// CommentAdded is the resolver for the commentAdded field.
+func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID string) (<-chan *models.Comment, error) {
+	ch := make(chan *models.Comment)
+
+	r.Subscribers[postID] = ch
+
+	go func() {
+		<-ctx.Done()
+		delete(r.Subscribers, postID)
+		close(ch)
+	}()
+
+	return ch, nil
 }
 
 // Comment returns CommentResolver implementation.
@@ -56,7 +101,11 @@ func (r *Resolver) Post() PostResolver { return &postResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+// Subscription returns SubscriptionResolver implementation.
+func (r *Resolver) Subscription() SubscriptionResolver { return &subscriptionResolver{r} }
+
 type commentResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type postResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type subscriptionResolver struct{ *Resolver }

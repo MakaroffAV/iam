@@ -11,7 +11,7 @@ type PostRepo interface {
 }
 
 type CommentRepo interface {
-	comment(id string) (*models.Comment, error)
+	Comment(id string) (*models.Comment, error)
 	CreateComment(comment *models.Comment) error
 	CommentsAll(postID string) ([]*models.Comment, error)
 	CommentChildren(parentID string) ([]*models.Comment, error)

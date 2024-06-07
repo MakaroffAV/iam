@@ -3,12 +3,13 @@ package db
 import (
 	"database/sql"
 	"log"
+	"os"
 
 	_ "github.com/lib/pq"
 )
 
 var (
-	connParams = "user=makarov password=simplePassword host=localhost port=8081 dbname=ozon sslmode=disable"
+	connParams = os.Getenv("DB_CONN_PARAMS")
 )
 
 func init() {

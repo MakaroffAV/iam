@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"ozon-posts/graph"
 	"ozon-posts/internal/repo"
 	"ozon-posts/internal/repo/db"
@@ -15,7 +16,12 @@ import (
 
 func main() {
 
-	storage := "memory"
+	storage := os.Getenv("STORAGE_TYPE")
+	if storage != "db" && storage != "memory" {
+		log.Fatal(
+			"unknown storage type",
+		)
+	}
 
 	var postRepository repo.PostRepo
 	var commentRepository repo.CommentRepo
@@ -41,10 +47,10 @@ func main() {
 	srv := handler.NewDefaultServer(
 		graph.NewExecutableSchema(
 			graph.Config{
-				Resolvers: &graph.Resolver{
-					PostService:    service.NewPostService(postRepository),
-					CommentService: service.NewCommentService(commentRepository),
-				},
+				Resolvers: graph.NewResolver(
+					service.NewPostService(postRepository),
+					service.NewCommentService(commentRepository),
+				),
 			},
 		),
 	)

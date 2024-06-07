@@ -27,3 +27,7 @@ type Mutation {
     createPost(title: String!, content: String!, author: String!, commentsAllowed: Boolean!): Post!
     createComment(postId: ID!, parentId: ID, author: String!, content: String!): Comment!
 }
+
+type Subscription {
+    commentAdded(postId: ID!): Comment!
+}

@@ -11,7 +11,7 @@ import (
 
 var errEmptyPost = errors.New("post is not found")
 var errEmptyParent = errors.New("empty comment parent")
-var errMaxCommentLen = errors.New("comment are too long")
+var errMaxCommentLen = errors.New("comment is too long")
 var errCommentsNotAllowed = errors.New("comments are not allowed")
 
 type CommentService struct {
@@ -44,8 +44,8 @@ func (s CommentService) CreateComment(postID string, parentID *string, author st
 	}
 
 	if parentID != nil {
-		c, cErr := s.CommentStorage.comment(*parentID)
-		if cErr != nil || cErr != nil {
+		c, cErr := s.CommentStorage.Comment(*parentID)
+		if cErr != nil || c == nil {
 			return nil, errEmptyParent
 		}
 	}
@@ -63,16 +63,19 @@ func (s CommentService) CreateComment(postID string, parentID *string, author st
 }
 
 func (s CommentService) CommentChildren(parentID string) ([]*models.Comment, error) {
+
 	return s.CommentStorage.CommentChildren(parentID)
 
 }
 
 func (s CommentService) Comments(postID string, limit, offset int) ([]*models.Comment, error) {
+
 	if limit < 0 && offset < 0 {
 		return s.CommentStorage.CommentsAll(postID)
 	} else {
 		return s.CommentStorage.Comments(postID, limit, offset)
 	}
+
 }
 
 func NewCommentService(storage repo.CommentRepo) *CommentService {
