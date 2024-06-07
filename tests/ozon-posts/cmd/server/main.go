@@ -4,7 +4,10 @@ import (
 	"log"
 	"net/http"
 	"ozon-posts/graph"
+	"ozon-posts/internal/repo"
+	"ozon-posts/internal/repo/db"
 	"ozon-posts/internal/repo/memory"
+	"ozon-posts/internal/service"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -12,12 +15,35 @@ import (
 
 func main() {
 
+	storage := "memory"
+
+	var postRepository repo.PostRepo
+	var commentRepository repo.CommentRepo
+
+	if storage == "db" {
+
+		c, cErr := db.Connection()
+		if cErr != nil {
+			log.Fatal(
+				cErr,
+				"creation of the db connection failed",
+			)
+		}
+		defer c.Close()
+
+		postRepository = db.NewPostDbRepository(c)
+		commentRepository = db.NewCommentDbRepository(c)
+	} else {
+		postRepository = memory.NewPostRepository()
+		commentRepository = memory.NewCommentRepository()
+	}
+
 	srv := handler.NewDefaultServer(
 		graph.NewExecutableSchema(
 			graph.Config{
 				Resolvers: &graph.Resolver{
-					PostStorage:    memory.NewPostRepository(),
-					CommentStorage: memory.NewCommentRepository(),
+					PostService:    service.NewPostService(postRepository),
+					CommentService: service.NewCommentService(commentRepository),
 				},
 			},
 		),

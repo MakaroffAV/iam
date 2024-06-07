@@ -74,7 +74,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Comments func(childComplexity int, postID string, limit *int, offset *int) int
+		Comments func(childComplexity int, postID string, limit int, offset int) int
 		Post     func(childComplexity int, id string) int
 		Posts    func(childComplexity int) int
 	}
@@ -93,7 +93,7 @@ type PostResolver interface {
 type QueryResolver interface {
 	Posts(ctx context.Context) ([]*models.Post, error)
 	Post(ctx context.Context, id string) (*models.Post, error)
-	Comments(ctx context.Context, postID string, limit *int, offset *int) ([]*models.Comment, error)
+	Comments(ctx context.Context, postID string, limit int, offset int) ([]*models.Comment, error)
 }
 
 type executableSchema struct {
@@ -240,7 +240,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Comments(childComplexity, args["postId"].(string), args["limit"].(*int), args["offset"].(*int)), true
+		return e.complexity.Query.Comments(childComplexity, args["postId"].(string), args["limit"].(int), args["offset"].(int)), true
 
 	case "Query.post":
 		if e.complexity.Query.Post == nil {
@@ -495,19 +495,19 @@ func (ec *executionContext) field_Query_comments_args(ctx context.Context, rawAr
 		}
 	}
 	args["postId"] = arg0
-	var arg1 *int
+	var arg1 int
 	if tmp, ok := rawArgs["limit"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["limit"] = arg1
-	var arg2 *int
+	var arg2 int
 	if tmp, ok := rawArgs["offset"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg2, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1448,7 +1448,7 @@ func (ec *executionContext) _Query_comments(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Comments(rctx, fc.Args["postId"].(string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Query().Comments(rctx, fc.Args["postId"].(string), fc.Args["limit"].(int), fc.Args["offset"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4190,6 +4190,21 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNInt2int64(ctx context.Context, v interface{}) (int64, error) {
 	res, err := graphql.UnmarshalInt64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4570,22 +4585,6 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 	res := graphql.MarshalID(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalInt(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalInt(*v)
 	return res
 }
 

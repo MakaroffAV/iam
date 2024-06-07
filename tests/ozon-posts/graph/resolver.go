@@ -1,7 +1,7 @@
 package graph
 
 import (
-	"ozon-posts/internal/repo/memory"
+	"ozon-posts/internal/service"
 )
 
 // This file will not be regenerated automatically.
@@ -9,6 +9,6 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	PostStorage    *memory.PostRepository
-	CommentStorage *memory.CommentRepository
+	PostService    *service.PostService
+	CommentService *service.CommentService
 }

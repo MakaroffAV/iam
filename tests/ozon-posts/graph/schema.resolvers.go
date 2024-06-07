@@ -6,64 +6,42 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"ozon-posts/internal/models"
-	"time"
-
-	"github.com/google/uuid"
 )
 
 // Children is the resolver for the children field.
 func (r *commentResolver) Children(ctx context.Context, obj *models.Comment) ([]*models.Comment, error) {
-	panic(fmt.Errorf("not implemented: Children - children"))
+	return r.CommentService.CommentChildren(obj.ID)
 }
 
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context, title string, content string, author string, commentsAllowed bool) (*models.Post, error) {
-	p := &models.Post{
-		ID:              uuid.New().String(),
-		Title:           title,
-		Author:          author,
-		Content:         content,
-		CommentsAllowed: commentsAllowed,
-	}
-	r.PostStorage.CreatePost(p)
-	return p, nil
+	return r.PostService.CreatePost(title, content, author, commentsAllowed)
 }
 
 // CreateComment is the resolver for the createComment field.
 func (r *mutationResolver) CreateComment(ctx context.Context, postID string, parentID *string, author string, content string) (*models.Comment, error) {
-	c := &models.Comment{
-		ID:        uuid.New().String(),
-		Author:    author,
-		PostID:    postID,
-		Content:   content,
-		ParentID:  parentID,
-		CreatedAt: time.Now().Unix(),
-	}
-	r.CommentStorage.CreateComment(c)
-	return c, nil
+	return r.CommentService.CreateComment(postID, parentID, author, content, r.PostService)
 }
 
 // Comments is the resolver for the comments field.
 func (r *postResolver) Comments(ctx context.Context, obj *models.Post) ([]*models.Comment, error) {
-	panic(fmt.Errorf("not implemented: Comments - comments"))
+	return r.CommentService.Comments(obj.ID, -1, -1)
 }
 
 // Posts is the resolver for the posts field.
 func (r *queryResolver) Posts(ctx context.Context) ([]*models.Post, error) {
-	return r.PostStorage.Posts(), nil
+	return r.PostService.Posts()
 }
 
 // Post is the resolver for the post field.
 func (r *queryResolver) Post(ctx context.Context, id string) (*models.Post, error) {
-	p, _ := r.PostStorage.PostById(id)
-	return p, nil
+	return r.PostService.Post(id)
 }
 
 // Comments is the resolver for the comments field.
-func (r *queryResolver) Comments(ctx context.Context, postID string, limit *int, offset *int) ([]*models.Comment, error) {
-	return r.CommentStorage.GetComments(postID, *limit, *offset), nil
+func (r *queryResolver) Comments(ctx context.Context, postID string, limit int, offset int) ([]*models.Comment, error) {
+	return r.CommentService.Comments(postID, limit, offset)
 }
 
 // Comment returns CommentResolver implementation.

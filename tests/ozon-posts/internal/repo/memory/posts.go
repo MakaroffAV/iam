@@ -10,7 +10,7 @@ type PostRepository struct {
 	posts map[string]*models.Post
 }
 
-func (r *PostRepository) Posts() []*models.Post {
+func (r *PostRepository) Posts() ([]*models.Post, error) {
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -20,26 +20,32 @@ func (r *PostRepository) Posts() []*models.Post {
 		p = append(p, v)
 	}
 
-	return p
+	return p, nil
 
 }
 
-func (r *PostRepository) CreatePost(post *models.Post) {
+func (r *PostRepository) CreatePost(post *models.Post) error {
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	r.posts[post.ID] = post
 
+	return nil
+
 }
 
-func (r *PostRepository) PostById(id string) (*models.Post, bool) {
+func (r *PostRepository) Post(postID string) (*models.Post, error) {
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	p, pExist := r.posts[id]
-	return p, pExist
+	p, pExist := r.posts[postID]
+	if pExist {
+		return p, nil
+	}
+
+	return nil, nil
 
 }
 
