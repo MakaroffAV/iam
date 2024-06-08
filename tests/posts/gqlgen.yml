@@ -1,0 +1,14 @@
+schema:
+  - ./graph/schema,
+exec:
+  filename: internal/graphql/generated.go
+  package: graphql
+model:
+  filename: internal/graphql/models_gen.go
+  package:  models
+resolver:
+  layout: follow-schema
+  dir: internal/graphql/resolvers
+  package: resolvers
+autobind:
+  - "posts/internal/models"
