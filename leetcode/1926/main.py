@@ -8,64 +8,52 @@ class Solution:
         self.row_d = [-1, 0, 1, 0]
         self.col_d = [0, 1, 0, -1]
         
-    def is_valid(self, visited, row, col):
-        if row < 0 or col < 0 or row >= self.rows or col >= self.cols:
-            return False
-        
-        if visited[row][col]:
-            return False
-        
-        if self.maze[row][col] == "+":
-            return False
-        
-        return True
-        
     def nearestExit(self, maze: List[List[str]], entrance: List[int]) -> int:
-        q = []
-        v = {}
         
-        self.maze = maze
-        self.rows = len(maze)
-        self.cols = len(maze[0])
+        def is_valid(row, col):
+            if row < 0 or col < 0 or row >= rows or col >= cols:
+                return False
+            if v[row][col]:
+                return False
+            if maze[row][col] == "+":
+                return False
+            return True
+        
+        q = []
+        
+        rows = len(maze)
+        cols = len(maze[0])
         
         min_path = float("inf")
-        cur_step = 0
         
-        q.append(entrance)
+        q.append(entrance+[1])
         v = [
             [
                 False 
-                for i in range(self.cols)
+                for _ in range(cols)
             ]
-            for i in range(self.rows)
+            for  _   in  range(rows)
         ]
-        e = [
-            [
-                self.maze[i2][i1] == "." and ((i2 == 0 or i2 == self.rows-1) or (i1 == 0 or i1 == self.cols-1))
-                for i1 in range(self.cols)
-            ] 
-            for i2 in range(self.rows)
-        ]
+        v[entrance[0]][entrance[1]] = True
         
-        while len(q) > 0:            
-            x, y = q[0]
-            q    = q[1:]
-            
-            cur_step += 1
+        while len(q) > 0:
+            x = q[0][0]
+            y = q[0][1]   
+            s = q[0][2]     
+
+            q = q[1:]
             
             for i in range(4):
                 adj_x = x + self.row_d[i]
                 adj_y = y + self.col_d[i]
                 
-                if self.is_valid(v, adj_x, adj_y):
-                    if e[adj_x][adj_y]:
-                        dist = abs(adj_x - entrance[0]) + abs(adj_y - entrance[1])
-                        if dist != 0:
-                            if dist < min_path:
-                                min_path = dist
-                                print(dist, adj_x, adj_y, cur_step)
+                if is_valid(adj_x, adj_y):
+                    if maze[adj_x][adj_y] == "." and ((adj_x == 0 or adj_x == rows-1) or (adj_y == 0 or adj_y == cols-1)):
+                        if s < min_path:
+                            min_path = s
+
                     v[adj_x][adj_y] = True
-                    q.append((adj_x, adj_y))
+                    q.append((adj_x, adj_y, s+1))
                     
         return -1 if min_path == float("inf") else min_path
     
@@ -118,6 +106,20 @@ if __name__ == "__main__":
                 1,
             ],
             12
+        ],
+        [
+            [
+                ["+",".","+","+","+","+","+"],
+                ["+",".","+",".",".",".","+"],
+                ["+",".","+",".","+",".","+"],
+                ["+",".",".",".",".",".","+"],
+                ["+","+","+","+",".","+","."],
+            ],
+            [
+                0,
+                1,
+            ],
+            7
         ]
     ]
     for i in test_cases:
