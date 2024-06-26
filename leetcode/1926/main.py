@@ -1,4 +1,4 @@
-# tags: bfs
+# tags: bfs, maze
 
 from typing import List
 
