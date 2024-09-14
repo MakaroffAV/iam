@@ -1,0 +1,2 @@
+tests=( $( ls . ) )
+echo $tests
