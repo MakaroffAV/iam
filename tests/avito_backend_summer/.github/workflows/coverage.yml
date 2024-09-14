@@ -1,0 +1,99 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  testsCover:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ github.token }}
+
+      - name: update
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_VPS_IP }}
+          username: ${{ secrets.PROD_VPS_USER }}
+          password: ${{ secrets.PROD_VPS_PASS }}
+
+          script: |
+            cd /avito/backend-bootcamp-assignment-2024
+            git pull
+
+      - name: database
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_VPS_IP }}
+          username: ${{ secrets.PROD_VPS_USER }}
+          password: ${{ secrets.PROD_VPS_PASS }}
+
+          script: |
+            cd /avito/backend-bootcamp-assignment-2024
+            
+            docker compose up db --build -d
+            
+            export GOPATH=$HOME/go
+            export PATH=$PATH:$GOROOT/bin:$GOPATH/binexport GOPATH=$HOME/goexport PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
+            goose -dir ./migrations postgres "postgresql://makarov:simplePassword@localhost:20500/bootcamp?sslmode=disable" up
+
+      - name: coverage
+        id: cvg
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_VPS_IP }}
+          username: ${{ secrets.PROD_VPS_USER }}
+          password: ${{ secrets.PROD_VPS_PASS }}
+
+          script: |
+            cd /avito/backend-bootcamp-assignment-2024
+
+            export PDB_HOST=localhost
+            export PDB_PORT=20500
+            export PDB_USER=makarov
+            export PDB_PASS=simplePassword
+            export PDB_NAME=bootcamp
+
+            export PATH=$PATH:/usr/local/go/bin
+
+            go test ./... -coverprofile coverage.out
+            COVERAGE=`go tool cover -func=coverage.out | grep total: | grep -Eo '[0-9]+\.[0-9]+'`
+            echo $COVERAGE
+
+            curl "https://img.shields.io/badge/coverage-$COVERAGE%25-blue" > badge.svg
+
+      - name: Configure git
+        run: |
+          git config --global user.name "CI Bot"
+          git config --global user.email "dev@tmaster.su"    
+
+      - name: download badge
+        uses: nicklasfrahm/scp-action@main
+        with:
+          direction: download
+          host: ${{ secrets.PROD_VPS_IP }}
+          username: ${{ secrets.PROD_VPS_USER }}
+          insecure_password: ${{ secrets.PROD_VPS_PASS }}
+          insecure_ignore_fingerprint: true
+          
+          source: /avito/backend-bootcamp-assignment-2024/badge.svg
+          target: ./badge.svg
+
+      - name: set_coverage_badge
+        run: |
+
+          pwd
+          ls -a
+
+          git checkout -b badge
+          git fetch origin badge
+          
+          git add .
+          git commit -m "added badge"
+          git push -u origin badge --force
+

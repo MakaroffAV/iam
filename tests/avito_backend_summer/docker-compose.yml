@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  db:
+    image:
+      postgres
+    ports:
+      - "20500:5432"
+    volumes:
+      - /avito_data/db:/var/lib/postgresql/data/
+    networks:
+      - some_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d bootcamp -U makarov"]
+      retries: 5
+      timeout: 5s
+      interval: 10s
+    environment:
+      - POSTGRES_DB=bootcamp
+      - POSTGRES_USER=makarov
+      - POSTGRES_PASSWORD=simplePassword
+
+  app:
+    build:
+      context:    .
+      dockerfile: dockerfile
+    ports:
+      - "20501:20501"
+    networks:
+      - some_network
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - PDB_HOST=db
+      - PDB_NAME=bootcamp
+      - PDB_PORT=5432
+      - PDB_USER=makarov
+      - PDB_PASS=simplePassword
+
+networks:
+  some_network:
+    name: some_network
+    driver: bridge
+
