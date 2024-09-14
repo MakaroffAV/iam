@@ -1,0 +1,1 @@
+goose -dir ./migrations postgres 'postgres://cnrprod1725862383-team-76968:cnrprod1725862383-team-76968@rc1b-5xmqy6bq501kls4m.mdb.yandexcloud.net:6432/cnrprod1725862383-team-76968' up

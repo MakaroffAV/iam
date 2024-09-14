@@ -1,0 +1,10 @@
+POST {{addr}}/api/bids/new
+Content-Type: application/json
+
+{
+  "name": "string",
+  "description": "string",
+  "tenderId": "0533f1a4-aa5e-4599-94e3-5b71b72aca20",
+  "authorType": "Organization",
+  "authorId": "755394a8-b126-4b81-8978-fbedb7917cf3"
+}

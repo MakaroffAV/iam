@@ -1,0 +1,1 @@
+GET {{addr}}/api/bids/0533f1a4-aa5e-4599-94e3-5b71b72aca11/list?username=test&limit=10&offset=0

@@ -1,0 +1,7 @@
+PATCH {{addr}}/api/tenders/ac356c1a-37e4-4855-a373-98d3cdb4f366/edit?username=test2
+Content-Type: application/json
+
+{
+  "name": "string1",
+  "description": "string1"
+}

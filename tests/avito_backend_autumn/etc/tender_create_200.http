@@ -1,0 +1,10 @@
+POST {{addr}}/api/tenders/new
+Content-Type: application/json
+
+{
+  "name": "other_side",
+  "description": "string",
+  "serviceType": "Construction",
+  "organizationId": "ddb2a0ed-0b0c-4571-b6ef-90e2c37d61ab",
+  "creatorUsername": "test"
+}

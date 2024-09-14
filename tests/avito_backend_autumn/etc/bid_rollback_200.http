@@ -1,0 +1,1 @@
+PUT {{addr}}/api/bids/ed2a5d71-17de-477a-8933-2232641fa4ee/rollback/1?username=test

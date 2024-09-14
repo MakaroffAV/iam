@@ -1,0 +1,1 @@
+GET {{addr}}/api/bids/my?limit=5&offset=0&username=test

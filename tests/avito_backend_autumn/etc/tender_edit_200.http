@@ -1,0 +1,7 @@
+PATCH {{addr}}/api/tenders/4aac4790-01ec-4677-9c3c-bfbed35e7da5/edit?username=test
+Content-Type: application/json
+
+{
+  "name": "other_side_edited",
+  "description": "string1"
+}

@@ -1,0 +1,1 @@
+PUT {{addr}}/api/tenders/4ca34eda-f284-4fca-9e91-59f1c20c5c38/status?status=Created&username=test2

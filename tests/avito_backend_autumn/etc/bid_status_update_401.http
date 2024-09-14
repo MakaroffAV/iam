@@ -1,0 +1,1 @@
+PUT {{addr}}/api/bids/bab4b14f-0e6b-4028-8c0f-43a4f0af0c7e/status?username=tes&status=Published
