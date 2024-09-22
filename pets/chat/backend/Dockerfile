@@ -6,17 +6,17 @@ RUN apt-get update && \
     apt-get install -y
 
 # Все необходимые библиотеки
-RUN pip3 install flask && \
-    pip3 install pika && \
-    pip3 install pypdf && \
-    pip3 install chromadb && \
-    pip3 install langchain && \
-    pip3 install Flask-Cors && \
-    pip3 install python-docx && \
-    pip3 install transformers && \
-    pip3 install huggingface_hub && \
-    pip3 install langchain_community && \
-    pip3 install langchain_huggingface && \
+RUN pip install flask && \
+    pip install pika && \
+    pip install pypdf && \
+    pip install chromadb && \
+    pip install langchain && \
+    pip install Flask-Cors && \
+    pip install python-docx && \
+    pip install transformers && \
+    pip install huggingface_hub && \
+    pip install langchain_community && \
+    pip install langchain_huggingface && \
     CMAKE_ARGS="-DLLAMA_CUBLAS=on" FORCE_CMAKE=1 pip install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
 
 # Копируем код приложения в контейнер
