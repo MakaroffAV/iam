@@ -3,7 +3,10 @@ FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
 # Установим системные зависимости
 RUN apt-get update && \
-    apt-get install -y
+    apt-get install -y \
+    python3 python3-pip python3-dev \
+    curl gnupg apt-transport-https ca-certificates \
+    && apt-get clean
 
 # Все необходимые библиотеки
 RUN pip install flask && \
