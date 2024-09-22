@@ -1,0 +1,15 @@
+export PDB_USER=makarov 
+export PDB_PASS=simplePassword
+export PDB_HOST=localhost
+export PDB_PORT=20002
+export PDB_NAME=hps
+
+export MAIL_HOST=smtp.yandex.ru
+export MAIL_USER=hp.mail.bot@yandex.ru
+export MAIL_PASW=ugqwzrmxxwwyiboa
+export MAIL_PORT=587
+
+export RMQ_HOST=localhost
+export RMQ_PORT=7001
+
+export HF_TOKEN=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
