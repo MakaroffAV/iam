@@ -1,0 +1,5 @@
+POST localhost:5001/api/project/get
+Content-Type: application/x-www-form-urlencoded
+
+token = 00df4248-296d-4837-9da1-06f34f5dc782 &
+project_uuid = aeeb2524-6612-445e-bf74-c3062dbdc219

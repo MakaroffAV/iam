@@ -1,0 +1,6 @@
+POST localhost:5001/api/project/search
+Content-Type: application/x-www-form-urlencoded
+
+project_uuid = 75baafe8-e078-4879-9b0d-22dc7e4dcdce &
+model_name = LaBSE &
+query = "188.130.142.216:1050?"

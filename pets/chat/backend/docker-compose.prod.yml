@@ -1,0 +1,110 @@
+version: "3"
+
+services:
+
+    prod_db:
+        image:
+            postgres
+        ports:
+            - "20002:5432"
+        networks:
+            - backend
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -d hps -U makarov"]
+            retries: 5
+            timeout: 5s
+            interval: 10s
+        environment:
+            - POSTGRES_DB=hps
+            - POSTGRES_USER=makarov
+            - POSTGRES_PASSWORD=simplePassword
+
+    prod_broker:
+        image:
+            rabbitmq:3-management-alpine
+        ports:
+            - "7001:5672"
+            - "7002:15672"
+        networks:
+            - backend
+        healthcheck:
+            test: rabbitmq-diagnostics -q ping
+            retries: 3
+            timeout: 30s
+            interval: 30s
+
+    prod_chroma:
+        image:
+            ghcr.io/chroma-core/chroma:latest
+        environment:
+            - IS_PERSISTENT=TRUE
+        ports:
+            - "8000:8000"
+        volumes:
+            # Default configuration for persist_directory in chromadb/config.py
+            # Currently it's located in "/chroma/chroma/"
+            - chroma-data:/chroma/chroma/
+        networks:
+            - backend
+
+    prod_python_app:
+        build: .
+        depends_on:
+            prod_broker:
+                condition: service_healthy
+            prod_app_init:
+                condition: service_completed_successfully
+        networks:
+            - backend
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+
+            - PDB_USER=makarov
+            - PDB_PASS=simplePassword
+            - PDB_HOST=prod_db
+            - PDB_PORT=5432
+            - PDB_NAME=hps
+
+            - MAIL_HOST=smtp.yandex.ru
+            - MAIL_USER=hp.mail.bot@yandex.ru
+            - MAIL_PASW=ugqwzrmxxwwyiboa
+            - MAIL_PORT=587
+
+            - CH_HOST=prod_chroma
+            - CH_PORT=8000
+
+            - RMQ_HOST=prod_broker
+            - RMQ_PORT=5672
+
+            - HF_TOKEN=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
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
+        runtime:
+            nvidia
+        ports:
+            - "5001:5001"
+        command: bash -c "python3 main.py server
+
+    prod_app_init:
+        image:
+            makarov0aleksei/migrator
+        volumes:
+            - ./migrations:/db/migrations
+        networks:
+            - backend
+        command: >
+            bash -c "/root/go/bin/goose -dir /db/migrations postgres 'postgresql://makarov:simplePassword@prod_db:5432/hps?sslmode=disable' up"
+        depends_on:
+            prod_db:
+                condition: service_healthy
+
+volumes:
+    chroma-data:
+        driver: local
+
+networks:
+    backend:
+        driver: bridge

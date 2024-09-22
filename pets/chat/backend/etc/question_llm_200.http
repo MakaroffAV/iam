@@ -1,0 +1,6 @@
+POST localhost:5001/api/project/question
+Content-Type: application/x-www-form-urlencoded
+
+project_uuid = 3b73d116-84ff-4c62-84ad-66431c6e508b &
+model_name = LaBSE &
+question = "what are parallel regions?"
